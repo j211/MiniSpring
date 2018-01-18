@@ -6,6 +6,7 @@ import bd.BeanDefinitionImpl;
 import annotations.Bean;
 import annotations.Configuration;
 import annotations.Scope;
+import postProcessor.BeanPostProcessor;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,8 +17,14 @@ import java.util.*;
 public class AnnotatedBeanDefinitionReader {
     private  Map<String, BeanDefinition> beanDefinitions = new HashMap<>();
 
+    private  Map<String, BeanDefinition> beanDefinitionsPostProcessor = new HashMap<>();
+
     public  Map<String, BeanDefinition> getBeanDefinitions() {
         return beanDefinitions;
+    }
+
+    public Map<String, BeanDefinition> getBeanDefinitionsPostProcessor() {
+        return beanDefinitionsPostProcessor;
     }
 
     public void doBeanDefinition(String packageName) throws IOException, ClassNotFoundException {
@@ -27,12 +34,16 @@ public class AnnotatedBeanDefinitionReader {
             for (Method method : l.getMethods()) {
                 if (method.isAnnotationPresent(Bean.class)) {
                     BeanDefinition beanDefinition = new BeanDefinitionImpl();
-                    //beanDefinition.setFactoryMethodData(method);
+                    beanDefinition.setFactoryMethodName(method.getName());
                     if (method.isAnnotationPresent(Scope.class)) {
                         beanDefinition.setScope(method.getAnnotation(Scope.class).scopeName());
                     }
-                    beanDefinition.setBeanClassName(method.getReturnType().getName());
-                    beanDefinitions.put(method.getName(), beanDefinition);
+                    beanDefinition.setBeanClass(method.getReturnType());
+                    beanDefinition.setContextBeanClass(method.getDeclaringClass());
+                    if (method.getReturnType().getSimpleName().equals("BeanPostProcessor"))
+                        beanDefinitionsPostProcessor.put(method.getName(), beanDefinition);
+                    else
+                        beanDefinitions.put(method.getName(), beanDefinition);
                 }
             }
         }

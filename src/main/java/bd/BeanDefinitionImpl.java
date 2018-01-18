@@ -2,13 +2,11 @@ package bd;
 
 public class BeanDefinitionImpl implements BeanDefinition{
     private volatile Object beanClass;
-    private String scope;
+    private volatile Object contextBeanClass;
+    private String contextBeanClassName;
+    private String scope= "singleton";
     private String factoryBeanName;
     private String factoryMethodName;
-
-    public void setBeanClassName( String beanClassName) {
-    this.beanClass = beanClassName;
-}
 
     public String getBeanClassName() {
         Object beanClassObject = this.beanClass;
@@ -29,6 +27,31 @@ public class BeanDefinitionImpl implements BeanDefinition{
             return (Class)beanClassObject;
         }
     }
+
+    public void setContextBeanClassName( String contextBeanClassName) {
+        this.contextBeanClassName = contextBeanClassName;
+    }
+
+    public String getContextBeanClassName() {
+        Object beanClassObject = this.contextBeanClass;
+        return beanClassObject instanceof Class ? ((Class)beanClassObject).getName() : (String)beanClassObject;
+    }
+
+    public void setContextBeanClass( Class<?> contextBeanClass) {
+        this.contextBeanClass = contextBeanClass;
+    }
+
+    public Class<?> getContextBeanClass() throws IllegalStateException {
+        Object beanClassObject = this.contextBeanClass;
+        if (beanClassObject == null) {
+            throw new IllegalStateException("No bean class specified on bean definition");
+        } else if (!(beanClassObject instanceof Class)) {
+            throw new IllegalStateException("Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
+        } else {
+            return (Class)beanClassObject;
+        }
+    }
+
     public void setScope(String scope) {
         this.scope = scope;
     }
@@ -36,6 +59,7 @@ public class BeanDefinitionImpl implements BeanDefinition{
     public String getScope() {
         return this.scope;
     }
+
     public void setFactoryBeanName( String factoryBeanName) {
     this.factoryBeanName = factoryBeanName;
 }

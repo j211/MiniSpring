@@ -7,10 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Maventest" />
+        <module name="MiniSpring" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Maventest" target="1.8" />
+      <module name="MiniSpring" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
