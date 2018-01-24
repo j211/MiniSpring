@@ -5,16 +5,25 @@ import annotations.Qualifier;
 
 public class Circle {
     private TestBean bean;
+    private Square squ;
 
     @Autowired
-    public Circle(@Qualifier("testBean") TestBean bean) {
+    public Circle(@Qualifier("testBean1") TestBean bean) {
         this.bean = bean;
     }
 
-    public Circle() {
+    public Circle() {}
+
+    @Autowired
+    public void setSqu(Square squ) {
+        this.squ = squ;
     }
 
-    public TestBean getBean() {
+    public TestBean getFieldBean() {
         return bean;
+    }
+
+    public Square getSqu() {
+        return squ;
     }
 }

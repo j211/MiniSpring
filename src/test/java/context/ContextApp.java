@@ -17,20 +17,15 @@ public class ContextApp {
         return new Rectangle();
     }
 
+    @Scope(scopeName = "prototype")
     @Bean
     public Square square() {
         return new Square();
     }
 
-    //@Scope(scopeName = "prototype")
     @Bean
     public TestBean testBean(){return new TestBean();}
 
-
     @Bean
     public TestBean testBean1(){return new TestBean();}
-
-    @Bean
-    public BeanPostProcessor autowiredAnnotationBeanPostProcessor(){return new AutowiredAnnotationBeanPostProcessor();}
-
 }

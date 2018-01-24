@@ -2,12 +2,18 @@ package postProcessor;
 
 import beansFactories.BeanFactory;
 
+/**
+ * Интерфейс BeanPostProcessor по настройке бинов
+ */
 public interface BeanPostProcessor {
-    default Object postProcessBeforeInitialization(Object bean, String beanName, BeanFactory beanFactory) throws Exception {
+    /**
+     * Метод настройки бинов
+     * @param bean - бин
+     * @param beanName - имя бина
+     * @param beanFactory - ссылка на фабрику
+     * @return - настроенный бин
+     */
+    default Object postProcessBeforeInitialization(Object bean, String beanName, BeanFactory beanFactory){
         return bean;
     }
-
-    /*default Object postProcessAfterInitialization(Object bean, String beanName)  {
-        return bean;
-    }*/
 }

@@ -11,12 +11,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ *Создает на основе @see BeanDefinition бины и кладет в контейнер
+ */
 public class AnnotationBeanFactory implements BeanFactory{
     private Map<String, Object> beansObject = new HashMap<>();
     private Map<String, Object> beansPostProcessor = new HashMap<>();
 
-    AnnotatedBeanDefinitionReader bdReader;
+    private AnnotatedBeanDefinitionReader bdReader;
 
     public Map<String, Object> getBeansObject() {
         return beansObject;
@@ -29,84 +31,112 @@ public class AnnotationBeanFactory implements BeanFactory{
         applyPostProcessors();
     }
     /**
-     * Создает бины из описания вызвая фабричный метод
+     * Создает бин из описания @see BeanDefinition, вызвая фабричный метод
+     * @param beanName - имя бина
+     * @param listBeans - контейнер BeanDefinition
      */
-    private Object createBean(String beanName,Map<String, BeanDefinition> listBeans) throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    private Object createBean(String beanName,Map<String, BeanDefinition> listBeans) throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException{
           if (listBeans.containsKey(beanName)) {
-            Class className = listBeans.get(beanName).getContextBeanClass();
-            Method method = className.getDeclaredMethod(listBeans.get(beanName).getFactoryMethodName());
-            Object bean = method.invoke(className.newInstance(), null);
-            return bean;
-        }
-        else
-            throw new IllegalArgumentException("Bean with the name \""+beanName + "\" doesn't exist");
+              Class className = listBeans.get(beanName).getContextBeanClass();
+              Method method = className.getDeclaredMethod(listBeans.get(beanName).getFactoryMethodName());
+              Object bean = method.invoke(className.newInstance(), null);
+              return bean;
+          }
+          else {
+              throw new IllegalArgumentException("Bean with the name \"" + beanName + "\" doesn't exist");
+          }
     }
-
-    private Map<String, Object> createBeans(Map<String, BeanDefinition> listBeans) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    /**
+     * Создает бины
+     * @param listBeans - контейнер BeanDefinition
+     * @return - контейнер бинов
+     */
+    private Map<String, Object> createBeans(Map<String, BeanDefinition> listBeans){
         Map<String, Object> beans = new HashMap<>();
         for (Map.Entry<String, BeanDefinition> entry : listBeans.entrySet()) {
-            beans.put(entry.getKey(),createBean(entry.getKey(),listBeans));
+            try{
+                beans.put(entry.getKey(),createBean(entry.getKey(),listBeans));
+            }
+            catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException ex){
+                System.out.println("Beans creation exception");
+            }
         }
         return beans;
     }
     /**
      * Применяем постпроцессоры к переданному бину
+     * @param bean - бин
+     * @param beanName - имя бина
      */
-    private void applyPostProcessor(Object bean, String beanName) throws Exception {
+    private void applyPostProcessor(Object bean, String beanName) {
         for (Map.Entry<String, Object> entryPostProcessor : beansPostProcessor.entrySet()) {
                 BeanPostProcessor postProcessor = (BeanPostProcessor) entryPostProcessor.getValue();
                 beansObject.put(beanName,postProcessor.postProcessBeforeInitialization(bean, beanName,this));
             }
         }
     /**
-     * Настраиваем бины с помощью постпроцессоров
+     * Настраиваем все бины с помощью постпроцессоров
      */
-    private void applyPostProcessors() throws Exception {
+    private void applyPostProcessors(){
         for (Map.Entry<String, Object> entryPostProcessor : beansPostProcessor.entrySet()) {
                 BeanPostProcessor postProcessor = (BeanPostProcessor) entryPostProcessor.getValue();
-                for (Map.Entry<String, Object> entryBean : beansObject.entrySet())
-                    beansObject.put(entryBean.getKey(),postProcessor.postProcessBeforeInitialization(entryBean.getValue(), entryBean.getKey(),this));
+                for (Map.Entry<String, Object> entryBean : beansObject.entrySet()) {
+                    beansObject.put(entryBean.getKey(), postProcessor.postProcessBeforeInitialization(entryBean.getValue(), entryBean.getKey(), this));
+                }
         }
     }
+    /**
+    *Получение бина из контекста по имени
+    *@param name - имя бина
+    */
     @Override
-    public Object getBean(String name) throws Exception {
+    public Object getBean(String name) {
         if (beansObject.containsKey(name)) {
             if (bdReader.getBeanDefinitions().get(name).getScope().equals("prototype")) {
-                createBean(name,bdReader.getBeanDefinitions());
+                try {
+                    beansObject.put(name, createBean(name, bdReader.getBeanDefinitions()));
+                } catch(InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException ex){
+                    System.out.println("Bean " + name +" creation exception");
+                }
                 applyPostProcessor(beansObject.get(name),name);
             }
             return beansObject.get(name);
         }
-        createBean(name,bdReader.getBeanDefinitions());
+        try {
+            createBean(name, bdReader.getBeanDefinitions());
+        } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e){
+            System.out.println("Bean " + name +" creation exception");
+        }
         applyPostProcessor(beansObject.get(name),name);
         return beansObject.get(name);
     }
 
     /**
-     * Получение бина по типу. Если не существует бинов такого класса  или таких бинов несколько
+     * Получение бина по типу. Если не существует бинов такого класса или таких бинов несколько
      * получаем исключение
-     * @param type
-     * @param <T>
-     * @return
+     * @param type - тип бина
      */
     @Override
-    public <T> T getBean(Class<T> type) throws Exception {
+    public <T> T getBean(Class<T> type){
         int count=0;
         String name="";
         for (Map.Entry<String, BeanDefinition> entry :bdReader.getBeanDefinitions().entrySet()) {
                 if (type.isAssignableFrom(entry.getValue().getBeanClass())) {
                     count++;
-                    if (count==1)
+                    if (count==1) {
                         name = entry.getKey();
-                    else {name = ""; break;}
+                    }
+                    else {
+                        name = "";
+                        break;
+                    }
                 }
         }
         if (!name.equals("")) {
             return (T) getBean(name);
         }
         else {
-            throw new NullPointerException("Class not found");
-            //return null;
+            throw new NullPointerException("Class " + type + " not found");
         }
     }
 }

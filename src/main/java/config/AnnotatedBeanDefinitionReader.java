@@ -13,10 +13,15 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
-//Создает описание бинов и сохранеяет в HashMap
+
+/**
+ * Создает описание бинов и сохранеяет в контейнер
+ */
 public class AnnotatedBeanDefinitionReader {
+    /**Контейнер для хранения BeanDefinition*/
     private  Map<String, BeanDefinition> beanDefinitions = new HashMap<>();
 
+    /**Котейнер для хранения BeanPostProcessors*/
     private  Map<String, BeanDefinition> beanDefinitionsPostProcessor = new HashMap<>();
 
     public  Map<String, BeanDefinition> getBeanDefinitions() {
@@ -27,7 +32,11 @@ public class AnnotatedBeanDefinitionReader {
         return beanDefinitionsPostProcessor;
     }
 
-    public void doBeanDefinition(String packageName) throws IOException, ClassNotFoundException {
+    /**
+     * Сканирование конфигурации и поиск бинов, создание BeanDefinition
+     * @param packageName - имя пакета
+     */
+    public void doBeanDefinition(String packageName) throws IOException{
         Class[] list = getClasses(packageName);
         for (Class l:list){
             if (l.isAnnotationPresent(Configuration.class))
@@ -47,9 +56,14 @@ public class AnnotatedBeanDefinitionReader {
                 }
             }
         }
-
     }
-    public static Class[] getClasses(String packageName) throws ClassNotFoundException, IOException {
+
+    /**
+     * Получение списка классов в указанном пакете
+     * @param packageName - имя пакета
+     * @return - список классов в пакете
+     */
+    public static Class[] getClasses(String packageName) throws IOException{
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         assert classLoader != null;
         String path = packageName.replace('.', '/');
@@ -65,7 +79,12 @@ public class AnnotatedBeanDefinitionReader {
         }
         return classes.toArray(new Class[classes.size()]);
     }
-    static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
+
+    /**Поиск класса
+     * @param directory - директория
+     * @param packageName - имя пакета
+     */
+    static List<Class> findClasses(File directory, String packageName){
         List<Class> classes = new ArrayList();
         if (!directory.exists()) {
             return classes;
@@ -76,10 +95,13 @@ public class AnnotatedBeanDefinitionReader {
                 assert !file.getName().contains(".");
                 classes.addAll(findClasses(file, packageName + "." + file.getName()));
             } else if (file.getName().endsWith(".class")) {
-                classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+                try {
+                    classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+                } catch(ClassNotFoundException ex){
+                    System.out.println("ClassNotFoundException in findClasses");
+                }
             }
         }
         return classes;
     }
-
 }

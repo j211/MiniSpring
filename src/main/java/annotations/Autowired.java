@@ -5,7 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.CONSTRUCTOR,ElementType.FIELD})
+/**
+ * Аннотация для автосвязывания, применима для полей, констуктора, методов
+ */
+@Target({ElementType.CONSTRUCTOR,ElementType.FIELD,ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Autowired {
 }

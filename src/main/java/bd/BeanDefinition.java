@@ -1,5 +1,8 @@
 package bd;
 
+/**
+ * Интерфейс, через который можно получить доступ к метаданным будующего бина
+ */
 public interface BeanDefinition {
     String getBeanClassName();
 
@@ -26,5 +29,4 @@ public interface BeanDefinition {
     void setFactoryMethodName( String var1);
 
     String getFactoryMethodName();
-
 }
