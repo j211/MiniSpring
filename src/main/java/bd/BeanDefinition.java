@@ -1,7 +1,7 @@
 package bd;
 
 /**
- * Интерфейс, через который можно получить доступ к метаданным будующего бина
+ * Предоставляет доступ к метаданным будующего бина
  */
 public interface BeanDefinition {
     String getBeanClassName();

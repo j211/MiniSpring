@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 /**
  * Аннотация указывающая, что это бин
  */
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Bean {}

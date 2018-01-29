@@ -6,6 +6,7 @@ import bd.BeanDefinitionImpl;
 import annotations.Bean;
 import annotations.Configuration;
 import annotations.Scope;
+import org.apache.log4j.Logger;
 import postProcessor.BeanPostProcessor;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.util.*;
  * Создает описание бинов и сохранеяет в контейнер
  */
 public class AnnotatedBeanDefinitionReader {
+    private static Logger log = Logger.getLogger(AnnotatedBeanDefinitionReader.class.getName());
     /**Контейнер для хранения BeanDefinition*/
     private  Map<String, BeanDefinition> beanDefinitions = new HashMap<>();
 
@@ -98,7 +100,7 @@ public class AnnotatedBeanDefinitionReader {
                 try {
                     classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
                 } catch(ClassNotFoundException ex){
-                    System.out.println("ClassNotFoundException in findClasses");
+                    log.error("ClassNotFoundException in findClasses",ex);
                 }
             }
         }

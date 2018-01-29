@@ -2,6 +2,7 @@ package beansFactories;
 
 import bd.BeanDefinition;
 import config.AnnotatedBeanDefinitionReader;
+import org.apache.log4j.Logger;
 import postProcessor.BeanPostProcessor;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.util.Map;
  *Создает на основе @see BeanDefinition бины и кладет в контейнер
  */
 public class AnnotationBeanFactory implements BeanFactory{
+    private static Logger log = Logger.getLogger(AnnotationBeanFactory.class.getName());
     private Map<String, Object> beansObject = new HashMap<>();
     private Map<String, Object> beansPostProcessor = new HashMap<>();
 
@@ -24,7 +26,7 @@ public class AnnotationBeanFactory implements BeanFactory{
         return beansObject;
     }
 
-    public AnnotationBeanFactory(AnnotatedBeanDefinitionReader bdReader) throws Exception {
+    public AnnotationBeanFactory(AnnotatedBeanDefinitionReader bdReader){
         this.bdReader = bdReader;
         beansPostProcessor = createBeans(bdReader.getBeanDefinitionsPostProcessor());
         beansObject = createBeans(bdReader.getBeanDefinitions());
@@ -58,7 +60,7 @@ public class AnnotationBeanFactory implements BeanFactory{
                 beans.put(entry.getKey(),createBean(entry.getKey(),listBeans));
             }
             catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException ex){
-                System.out.println("Beans creation exception");
+                log.error("Beans creation exception",ex);
             }
         }
         return beans;
@@ -96,7 +98,7 @@ public class AnnotationBeanFactory implements BeanFactory{
                 try {
                     beansObject.put(name, createBean(name, bdReader.getBeanDefinitions()));
                 } catch(InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException ex){
-                    System.out.println("Bean " + name +" creation exception");
+                    log.error("Bean " + name +" creation exception",ex);
                 }
                 applyPostProcessor(beansObject.get(name),name);
             }
@@ -105,7 +107,7 @@ public class AnnotationBeanFactory implements BeanFactory{
         try {
             createBean(name, bdReader.getBeanDefinitions());
         } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e){
-            System.out.println("Bean " + name +" creation exception");
+            log.error("Bean " + name +" creation exception");
         }
         applyPostProcessor(beansObject.get(name),name);
         return beansObject.get(name);

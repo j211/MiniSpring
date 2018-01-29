@@ -2,16 +2,27 @@ package context;
 
 import beansFactories.AnnotationBeanFactory;
 import config.AnnotatedBeanDefinitionReader;
+
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import postProcessor.AutowiredAnnotationBeanPostProcessor;
+
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.Exception;
 
 public class Example {
-    public static void main(String[] args) throws Exception {
+    private static Logger log = Logger.getLogger(Example.class.getName());
+    public static void main(String[] args) {
+        log.info("Test logging");
         AnnotatedBeanDefinitionReader context = new AnnotatedBeanDefinitionReader();
-        context.doBeanDefinition("context");
+        try {
+            context.doBeanDefinition("context");
+        }catch (IOException ex){
+            log.error("Exception in doBeanDefinition ",ex);
+        }
         AnnotationBeanFactory beanFactory = new AnnotationBeanFactory(context);
         System.out.println("Beans");
         beanFactory.getBeansObject().forEach((k, v) -> System.out.println("Bean name = "+k+"   Bean = "+ v));

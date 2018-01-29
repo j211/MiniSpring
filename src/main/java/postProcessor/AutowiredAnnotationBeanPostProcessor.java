@@ -3,6 +3,7 @@ package postProcessor;
 import annotations.Autowired;
 import annotations.Qualifier;
 import beansFactories.BeanFactory;
+import org.apache.log4j.Logger;
 
 
 import java.lang.annotation.Annotation;
@@ -12,6 +13,7 @@ import java.lang.reflect.*;
  * BeanPostProcessor отвечающий за autowired
  */
 public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
+    private static Logger log = Logger.getLogger(AutowiredAnnotationBeanPostProcessor.class.getName());
     /** Фабрика бинов*/
     private BeanFactory beanFactory;
 
@@ -57,7 +59,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
                                     try {
                                         field.set(bean, beanFactory.getBean(parameter.getAnnotation(Qualifier.class).value()));
                                     } catch (IllegalAccessException e){
-                                        System.out.println("autoWiredConstructor exception in field.set with Qualifier for class "+ bean.getClass().getSimpleName());
+                                        log.error("autoWiredConstructor exception in field.set with Qualifier for class "+ bean.getClass().getSimpleName(),e);
                                     }
 
                                     return bean;
@@ -65,7 +67,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
                                 try {
                                     field.set(bean, beanFactory.getBean(paramType));
                                 } catch(IllegalAccessException e){
-                                    System.out.println("autoWiredConstructor exception in field.set for class " + bean.getClass().getSimpleName());
+                                    log.error("autoWiredConstructor exception in field.set for class " + bean.getClass().getSimpleName(),e);
                                 }
                             }
                         }
@@ -96,14 +98,14 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
                                     try {
                                         field.set(bean, beanFactory.getBean(parameter.getAnnotation(Qualifier.class).value()));
                                     } catch (IllegalAccessException e){
-                                        System.out.println("autoWiredMethods exception in field.set with Qualifier for class" + bean.getClass().getSimpleName());
+                                        log.error("autoWiredMethods exception in field.set with Qualifier for class" + bean.getClass().getSimpleName(),e);
                                     }
                                     return bean;
                                 }
                                 try {
                                     field.set(bean, beanFactory.getBean(paramType));
                                 } catch(IllegalAccessException e){
-                                    System.out.println("autoWiredMethods exception in field.set for class" + bean.getClass().getSimpleName());
+                                    log.error("autoWiredMethods exception in field.set for class" + bean.getClass().getSimpleName(),e);
                                 }
                             }
                         }
@@ -127,14 +129,14 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
                     try {
                         field.set(bean, beanFactory.getBean(field.getAnnotation(Qualifier.class).value()));
                         }catch(IllegalAccessException e){
-                            System.out.println("autoWiredField exception in field.set with Qualifier for class" + bean.getClass().getSimpleName());
+                        log.error("autoWiredField exception in field.set with Qualifier for class" + bean.getClass().getSimpleName(),e);
                         }
                         return bean;
                 }
                 try {
                     field.set(bean, beanFactory.getBean(field.getType()));
                     }catch (IllegalAccessException e){
-                        System.out.println("autoWiredMethods exception in field.set for class" + bean.getClass().getSimpleName());
+                    log.error("autoWiredMethods exception in field.set for class" + bean.getClass().getSimpleName(),e);
                     }
             }
         }

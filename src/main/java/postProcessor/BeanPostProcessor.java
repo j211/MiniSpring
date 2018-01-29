@@ -3,7 +3,7 @@ package postProcessor;
 import beansFactories.BeanFactory;
 
 /**
- * Интерфейс BeanPostProcessor по настройке бинов
+ * BeanPostProcessor по настройке бинов
  */
 public interface BeanPostProcessor {
     /**
